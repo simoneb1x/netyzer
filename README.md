@@ -32,4 +32,4 @@ So the code may not be of high quality. It may contain bugs and errors. It may b
 
 However, it is a completely open source project and welcomes outside contributions and suggestions :)
 
-simbel02, 24/04/23
+simoneb1x aka simbel02, 24/04/23
