@@ -18,11 +18,13 @@ In fact, Netyzer will offer itself as a tool conceptually:
 
 This is the roadmap I have in mind:
 
-1. packet visualization
-2. package analysis
-3. search for specific packets
-4. saving packets to a file
-5. implement filters to capture specific packets
+1. packet visualization 🚧
+2. package analysis 🔜
+3. search for specific packets 🔜
+4. saving packets to a file 🔜
+5. implement filters to capture specific packets 🔜
+
+I'm currently working on the first feature.
 
 ## Please, note that...
 
