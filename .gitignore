@@ -1,3 +1,5 @@
 network_analyzer
 netyzer
 .vscode
+source.dSYM
+.DS_Store

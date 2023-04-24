@@ -13,16 +13,58 @@
 #include <stdint.h>
 #include <net/ethernet.h>
 
-void packet_handler(u_char *args, const struct pcap_pkthdr *header, const u_char *packet){
-    printf("Packet captured!\n");
+// Callback function that is called whenever a packet is captured:
+// u_char *args: optional data pointer that can be passed to pcap_loop() when the packet sniffing is initializated;
+// const struct pcap_pkthdr *header: a pointer to the pcap_pkthdr structure that contains captured packet's header informations,
+// such as its length and the capture timestamp;
+// const u_char *packet: byte array's pointer that represent the captured packet contents
+void packet_handler(u_char *args, const struct pcap_pkthdr *header, const u_char *packet)
+{
+    // header conversion in a time_t structure in order to
+    // manipulate datetime and hours
+    struct tm *timeinfo;
+    char buffer[80];
+    time_t rawtime = header->ts.tv_sec;
+    timeinfo = localtime(&rawtime);
+    strftime(buffer, 80, "%Y-%m-%d %H:%M:%S", timeinfo);
+
+    printf("Packet captured at: %s\n", buffer);
+
+    // pointer to the first packet byte
+    const u_char *payload = packet + sizeof(struct ether_header);
+
+    // packet's data dimensions
+    int payload_size = header->len - sizeof(struct ether_header);
+
+    // visualization
+    printf("Packet data:\n");
+    for (int i = 0; i < payload_size; i++)
+    {
+        printf("%02x ", payload[i]);
+        if ((i + 1) % 16 == 0)
+            printf("\n");
+    }
+
+    printf("\n");
 }
 
-void packet_sniffing(pcap_t *handle){
+// This function starts the packet sniffing and its handling. It takes
+// pcap_t *handle as an argument, that is a pointer to the pcap_t structure that
+// represent the sniffing channel
+void packet_sniffing(pcap_t *handle)
+{
+    // this will contain the captured packets header
     struct pcap_pkthdr header;
+
+    // this will point at an array of bytes that represent the captured packet contents
     const u_char *packet;
 
     // pcap_loop receives the packets and calls a callback function for each received packet
-    pcap_loop(handle, 0, packet_handler, NULL); 
+    while ((packet = pcap_next(handle, &header)) != NULL)
+    {
+        // packet elaboration
+        packet_handler(NULL, &header, packet);
+    }
 }
 
 int main(int argc, char *argv[])
