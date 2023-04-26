@@ -28,6 +28,9 @@ void packet_handler(u_char *args, const struct pcap_pkthdr *header, const u_char
     timeinfo = localtime(&rawtime);
     strftime(buffer, 80, "%Y-%m-%d %H:%M:%S", timeinfo);
 
+    // we get the ethernet header
+    struct ether_header *eth_header = (struct ether_header *) packet;
+
     printf("Packet captured at: %s\n", buffer);
 
     // pointer to the first packet byte
@@ -35,6 +38,37 @@ void packet_handler(u_char *args, const struct pcap_pkthdr *header, const u_char
 
     // packet's data dimensions
     int payload_size = header->len - sizeof(struct ether_header);
+
+    if (ntohs(eth_header->ether_type) == ETHERTYPE_IP)
+    {
+        // get the ip header
+        struct iphdr *ip_header = (struct iphdr *)(packet + sizeof(struct ether_header));
+
+        printf("Source IP: %s\n", inet_ntoa((struct in_addr){ip_header->saddr}));
+        printf("Destination IP: %s\n", inet_ntoa((struct in_addr){ip_header->daddr}));
+
+        if (ip_header->protocol == IPPROTO_TCP)
+        {
+            // get the tcp header
+            struct tcphdr *tcp_header = (struct tcphdr *)(packet + sizeof(struct ether_header) + sizeof(struct iphdr));
+            printf("Source Port: %d\n", ntohs(tcp_header->source));
+            printf("Destination Port: %d\n", ntohs(tcp_header->dest));
+        }
+        else if (ip_header->protocol == IPPROTO_UDP)
+        {
+            // get the udp header
+            struct udphdr *udp_header = (struct udphdr *)(packet + sizeof(struct ether_header) + sizeof(struct iphdr));
+            printf("Source Port: %d\n", ntohs(udp_header->source));
+            printf("Destination Port: %d\n", ntohs(udp_header->dest));
+        }
+        else if (ip_header->protocol == IPPROTO_ICMP)
+        {
+            // get the icmp header
+            struct icmphdr *icmp_header = (struct icmphdr *)(packet + sizeof(struct ether_header) + sizeof(struct iphdr));
+            printf("ICMP Type: %d\n", icmp_header->type);
+            printf("ICMP Code: %d\n", icmp_header->code);
+        }
+    }
 
     // visualization
     printf("Packet data:\n");
