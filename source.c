@@ -29,7 +29,7 @@ void packet_handler(u_char *args, const struct pcap_pkthdr *header, const u_char
     strftime(buffer, 80, "%Y-%m-%d %H:%M:%S", timeinfo);
 
     // we get the ethernet header
-    struct ether_header *eth_header = (struct ether_header *) packet;
+    struct ether_header *eth_header = (struct ether_header *)packet;
 
     printf("Packet captured at: %s\n", buffer);
 
@@ -107,53 +107,57 @@ int main(int argc, char *argv[])
     pcap_t *handle;
     char errbuf[PCAP_ERRBUF_SIZE];
     pcap_if_t *alldevs, *dev;
+    int stop_option;
 
     int option_choice;
 
     printf("Welcome to Netyzer.\n");
-    printf("Please, select an option:\n");
-    printf("1. Packet Sniffing\n");
-    printf("2. Exit\n");
 
-    scanf("%d", &option_choice);
-
-    switch (option_choice)
+    while (stop_option < 1)
     {
-    case 1:
-        // finding the network interface to use
-        if (pcap_findalldevs(&alldevs, errbuf) == -1)
-        {
-            printf("Error finding devices: %s\n", errbuf);
-            return 1;
-        }
+        printf("Please, select an option:\n");
+        printf("1. Packet Sniffing\n");
+        printf("2. Exit\n");
 
-        dev = alldevs;
-        if (dev == NULL)
-        {
-            printf("No devices found.\n");
-            return 1;
-        }
-        printf("Using device: %s\n", dev->name);
+        scanf("%d", &option_choice);
 
-        handle = pcap_open_live(dev->name, BUFSIZ, 1, 1000, errbuf);
-        if (handle == NULL)
+        switch (option_choice)
         {
-            printf("Error opening device: %s\n", errbuf);
-            pcap_freealldevs(alldevs);
-            return 1;
-        }
+        case 1:
+            // finding the network interface to use
+            if (pcap_findalldevs(&alldevs, errbuf) == -1)
+            {
+                printf("Error finding devices: %s\n", errbuf);
+                return 1;
+            }
 
-        packet_sniffing(handle);
-        break;
-    case 2:
-        printf("Exiting program...\n");
-        exit(0);
-        break;
-    default:
-        printf("Invalid option selected.\n");
-        break;
+            dev = alldevs;
+            if (dev == NULL)
+            {
+                printf("No devices found.\n");
+                return 1;
+            }
+            printf("Using device: %s\n", dev->name);
+
+            handle = pcap_open_live(dev->name, BUFSIZ, 1, 1000, errbuf);
+            if (handle == NULL)
+            {
+                printf("Error opening device: %s\n", errbuf);
+                pcap_freealldevs(alldevs);
+                return 1;
+            }
+
+            packet_sniffing(handle);
+            break;
+        case 2:
+            printf("Exiting program...\n");
+            exit(0);
+            break;
+        default:
+            printf("Invalid option selected.\n");
+            break;
+        }
     }
-
     pcap_close(handle);
     pcap_freealldevs(alldevs);
 
