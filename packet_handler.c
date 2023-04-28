@@ -29,6 +29,7 @@ void packet_handler(u_char *args, const struct pcap_pkthdr *header, const u_char
     // we get the ethernet header
     struct ether_header *eth_header = (struct ether_header *)packet;
 
+    printf("\n*******************************\n");
     printf("Packet captured at: %s\n", buffer);
 
     // pointer to the first packet byte
@@ -68,14 +69,16 @@ void packet_handler(u_char *args, const struct pcap_pkthdr *header, const u_char
         }
     }
 
-    // visualization
+    // packet data visualization
     printf("Packet data:\n");
     for (int i = 0; i < payload_size; i++)
     {
         printf("%02x ", payload[i]);
         if ((i + 1) % 16 == 0)
             printf("\n");
-    }
+    };
+    
 
-    printf("\n");
+    // divider
+    printf("\n*******************************\n");
 }
